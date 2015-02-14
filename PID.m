@@ -3,10 +3,8 @@ function [ u ] = PID( y )
 %   Detailed explanation goes here
     %y = squeeze(y);
     num_Agents = size(y, 1);
-    if(nargin<2)
-        num_Agents = size(y, 1);
-        y0 = 1/(num_Agents+1)*ones(1, num_Agents)*y(1:num_Agents,1,:,1);
-    end
+    y0 = 1/(num_Agents).*ones(1, num_Agents)*squeeze(y(1:num_Agents,1,:,1:2));
+
     
     ep = (y0*ones(num_Agents,1)-y(:,1));
     ev = -y(:,2) ;

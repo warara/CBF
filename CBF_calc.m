@@ -1,6 +1,25 @@
-function out = CBF_calc(dgl, y0, para)
- 
 
+ 
+para.g = 9.81;
+para.m = 1;
+para.gamma = 10;
+para.ep = 10;
+para.d = 1;
+para.dt = 1e-2;
+para.simTime = 2;
+
+para.num_Agents = 2;
+y0 = zeros(para.num_Agents, 5);
+y0(1,:) = [ 9; 2; pi; -5; 0];
+%y0(3,:) = [ 3; -1];
+y0(2,:) = [-9; 0; 0; 5; 0];
+% y0(4,:) = [22; 0];
+% y0(5,:) = [-33; -3];
+% y0(6,:) = [-22; -7];
+% y0(7,:) = [-15; -3];
+% y0(8,:) = [ 25; 10];
+
+dgl = @dgl_uni;
 
     %
     % F_r = @(v)(0.1+5*v+0.25*v^2);
@@ -38,7 +57,7 @@ function out = CBF_calc(dgl, y0, para)
 
     t_=0:para.dt:para.simTime;
 
-    y = zeros(para.num_Agents, length(t_), 1,2);
+    y = zeros(para.num_Agents, length(t_), 1,5);
     y(:,1,:,:) = y0;
 
 
@@ -105,14 +124,10 @@ function out = CBF_calc(dgl, y0, para)
             u_it(i,:) = u;
         end
     end
-    plot_states(t_(1:i-1), y(:,1:i-1,:,1), para);
+    %plot_states(t_(1:i-1), y(:,1:i-1,:,1), para);
     out.y = y;
     out.u = u_it;
     out.fminconFail = fminconFail;
-
-end
-
-function plot_states(t, y, para)
 
     subplot(2,1,1);
     plot(t, y)
@@ -120,8 +135,7 @@ function plot_states(t, y, para)
     plot(t,  [zeros(1,length(t)); (abs(y(1,:,:,1))+abs(y(2,:,:,1)))-d;...
         (abs(y(1,:,:,1))+abs(y(2,:,:,1)))-para.d-0.5*((y(1,:,:,2)-y(2,:,:,2)).^2)/(0.3*para.g)]');
 
-end
-
+    
 
 %     A1 = [ A_cbf(y(1,i-1,:,:), norm(y(1,i-1,:,1)-y(2,i-1,:,1)), -y(1,i-1,:,2));  A_cc];
 %     b1 = [ b_cbf(y(1,i-1,:,:), norm(y(1,i-1,:,1)-y(2,i-1,:,1)), -y(1,i-1,:,2));  b_cc];
