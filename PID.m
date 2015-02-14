@@ -10,8 +10,8 @@ function [ u ] = PID( y )
     
     ep = (y0*ones(num_Agents,1)-y(:,1));
     ev = -y(:,2) ;
-    P = 80;
-    D = 120;
+    P = 60;
+    D = 100;
     u  = (P*ep+D*ev);
 
 
