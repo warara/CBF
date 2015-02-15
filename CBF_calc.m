@@ -5,14 +5,14 @@ para.m = 1;
 para.gamma = 10;
 para.ep = 10;
 para.d = 1;
-para.dt = 1e-2;
-para.simTime = 2;
+para.dt = 1e-3;
+para.simTime = 10;
 
 para.num_Agents = 2;
 y0 = zeros(para.num_Agents, 5);
-y0(1,:) = [ 9; 2; pi; -5; 0];
+y0(1,:) = [ 9; 1; pi; 0; 0];
 %y0(3,:) = [ 3; -1];
-y0(2,:) = [-9; 0; 0; 5; 0];
+y0(2,:) = [-9; 0; 1e-3; 0; 0];
 % y0(4,:) = [22; 0];
 % y0(5,:) = [-33; -3];
 % y0(6,:) = [-22; -7];
@@ -91,37 +91,40 @@ dgl = @dgl_uni;
 
     for i=2:length(t_)  
 
-        ud = PID(y(:,i-1,:,:));
-        u = zeros(para.num_Agents,1);
+        ud = diffiomorphic(y(:,i-1,:,:));
+        u = ud;% = zeros(para.num_Agents,1);
         for j = 1:para.num_Agents
-    %         A = zeros(2*num_Agents-1,1);
-    %         b = zeros(2*num_Agents-1,1);
-            A = zeros(para.num_Agents+1,1);
-            b = zeros(para.num_Agents+1,1);
-            %h_it(i,:) = [h(y(1,i-1,:,1),(y(1,i-1,:,1)-y(3,i-1,:,1))); hf(y(1,i-1,:,1),(y(1,i-1,:,1)-y(3,i-1,:,1)),(y(1,i-1,:,2)-y(3,i-1,:,2)))];
-            l = 1;         
-            for k = 1:para.num_Agents
-                if(j~=k)
-    %                 A(l) =   A_cbf (y(j,i-1,:,:), (y(j,i-1,:,1)-y(k,i-1,:,1)), (y(j,i-1,:,2)-y(k,i-1,:,2)));
-    %                 b(l) =   b_cbf (y(j,i-1,:,:), (y(j,i-1,:,1)-y(k,i-1,:,1)), (y(j,i-1,:,2)-y(k,i-1,:,2)));
-                    A(l) = A_fcbf(y(j,i-1,:,:), (y(j,i-1,:,1)-y(k,i-1,:,1)), (y(j,i-1,:,2)-y(k,i-1,:,2)));
-                    b(l) = b_fcbf(y(j,i-1,:,:), (y(j,i-1,:,1)-y(k,i-1,:,1)), (y(j,i-1,:,2)-y(k,i-1,:,2)));
-                    l=l+1;
-                end
-            end
-            A(end-1:end) = A_cc;
-            b(end-1:end) = b_cc;
-            [u(j), ~, exitflag] = fmincon(@(u)(u-ud(j))'*H*(u-ud(j)), 0, A, b, [], [], [], [], [], options_quad);
-
-    %         zw = quadprog(H, 0, A, b-A*ud(j));
-    %         u(j) = zw+ud(j);
-
-    %         if(exitflag == -2)
-    %             display('fmincon failed');
-    %         end
-            fminconFail(i,j) = exitflag;
-            y(j,i,:,:) = simulate_step( dgl, y(j,i-1,:,:), u(j), para );
-            u_it(i,:) = u;
+%     %         A = zeros(2*num_Agents-1,1);
+%     %         b = zeros(2*num_Agents-1,1);
+%             A = zeros(para.num_Agents+1,1);
+%             b = zeros(para.num_Agents+1,1);
+%             %h_it(i,:) = [h(y(1,i-1,:,1),(y(1,i-1,:,1)-y(3,i-1,:,1))); hf(y(1,i-1,:,1),(y(1,i-1,:,1)-y(3,i-1,:,1)),(y(1,i-1,:,2)-y(3,i-1,:,2)))];
+%             l = 1;         
+%             for k = 1:para.num_Agents
+%                 if(j~=k)
+%     %                 A(l) =   A_cbf (y(j,i-1,:,:), (y(j,i-1,:,1)-y(k,i-1,:,1)), (y(j,i-1,:,2)-y(k,i-1,:,2)));
+%     %                 b(l) =   b_cbf (y(j,i-1,:,:), (y(j,i-1,:,1)-y(k,i-1,:,1)), (y(j,i-1,:,2)-y(k,i-1,:,2)));
+%                     A(l) = A_fcbf(y(j,i-1,:,:), (y(j,i-1,:,1)-y(k,i-1,:,1)), (y(j,i-1,:,2)-y(k,i-1,:,2)));
+%                     b(l) = b_fcbf(y(j,i-1,:,:), (y(j,i-1,:,1)-y(k,i-1,:,1)), (y(j,i-1,:,2)-y(k,i-1,:,2)));
+%                     l=l+1;
+%                 end
+%             end
+%             A(end-1:end) = A_cc;
+%             b(end-1:end) = b_cc;
+%             [u(j), ~, exitflag] = fmincon(@(u)(u-ud(j))'*H*(u-ud(j)), 0, A, b, [], [], [], [], [], options_quad);
+% 
+%     %         zw = quadprog(H, 0, A, b-A*ud(j));
+%     %         u(j) = zw+ud(j);
+% 
+%     %         if(exitflag == -2)
+%     %             display('fmincon failed');
+%     %         end
+%             fminconFail(i,j) = exitflag;
+            y(j,i,:,:) = simulate_step( dgl, y(j,i-1,:,:), u(j,:), para );
+            %u_it(i,:) = u;
+        end
+        if(norm(squeeze(y(1,i,:,1:2))-squeeze(y(2,i,:,1:2)))<0.1)
+            break
         end
     end
     %plot_states(t_(1:i-1), y(:,1:i-1,:,1), para);
@@ -129,13 +132,15 @@ dgl = @dgl_uni;
     out.u = u_it;
     out.fminconFail = fminconFail;
 
-    subplot(2,1,1);
-    plot(t, y)
-    subplot(2,1,2);
-    plot(t,  [zeros(1,length(t)); (abs(y(1,:,:,1))+abs(y(2,:,:,1)))-d;...
-        (abs(y(1,:,:,1))+abs(y(2,:,:,1)))-para.d-0.5*((y(1,:,:,2)-y(2,:,:,2)).^2)/(0.3*para.g)]');
+%     subplot(2,1,1);
+%    plot(t_, y)
+%     subplot(2,1,2);
+%     plot(t,  [zeros(1,length(t)); (abs(y(1,:,:,1))+abs(y(2,:,:,1)))-d;...
+%         (abs(y(1,:,:,1))+abs(y(2,:,:,1)))-para.d-0.5*((y(1,:,:,2)-y(2,:,:,2)).^2)/(0.3*para.g)]');
 
-    
+    hold on
+    plot(y(2,:,:,1), y(2,:,:,2))
+plot(y(1,:,:,1), y(1,:,:,2))
 
 %     A1 = [ A_cbf(y(1,i-1,:,:), norm(y(1,i-1,:,1)-y(2,i-1,:,1)), -y(1,i-1,:,2));  A_cc];
 %     b1 = [ b_cbf(y(1,i-1,:,:), norm(y(1,i-1,:,1)-y(2,i-1,:,1)), -y(1,i-1,:,2));  b_cc];

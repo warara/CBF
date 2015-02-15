@@ -6,7 +6,7 @@ function [ dx ] = dgl_rel_uni(~, x, u, param )
     dx(1) = x(4)*cos(x(3));
     dx(2) = x(4)*sin(x(3));
     dx(3) = x(5);
-    dx(4) = -param.F_r/param.m+u(1)/param.m;
+    dx(4) =0+u(1);
     dx(5) = u(2);
 
 end
