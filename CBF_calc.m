@@ -1,6 +1,4 @@
 function out = CBF_calc(dgl, y0, para)
- 
-
 
     %
     % F_r = @(v)(0.1+5*v+0.25*v^2);
